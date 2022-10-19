@@ -10,4 +10,9 @@
 // add headers that you want to pre-compile here
 #include "framework.h"
 
+#include <iostream>
+#include <vector>
+#include <Windows.h>
+#include <TlHelp32.h>
+
 #endif //PCH_H
