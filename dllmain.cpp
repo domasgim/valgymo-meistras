@@ -5,6 +5,74 @@
 #include "mem.h"
 #include "proc.h"
 
+// Created with ReClass.NET 1.2 by KN4CK3R
+
+struct Vector3 { float x, y, z; };
+
+class playerClass
+{
+public:
+    class N00000165* vTable; //0x0000
+    Vector3 playerHead; //0x0004
+    Vector3 playerVelocity; //0x0010
+    char pad_001C[32]; //0x001C
+    Vector3 playerBody; //0x003C
+    Vector3 headAngles; //0x0048
+    char pad_0054[164]; //0x0054
+    int32_t health; //0x00F8
+    int32_t ammo; //0x00FC
+    char pad_0100[60]; //0x0100
+    int32_t pistolAmmoClip; //0x013C
+    char pad_0140[16]; //0x0140
+    int32_t arAmmoClip; //0x0150
+    char pad_0154[4]; //0x0154
+    int32_t grenadeCount; //0x0158
+    char pad_015C[4]; //0x015C
+    int32_t knifeWait; //0x0160
+    int32_t pistolWait; //0x0164
+    char pad_0168[16]; //0x0168
+    int32_t arWait; //0x0178
+    char pad_017C[504]; //0x017C
+    class weapon* currentWeapon; //0x0374
+}; //Size: 0x0378
+static_assert(sizeof(playerClass) == 0x378);
+
+class N00000165
+{
+public:
+    char pad_0000[68]; //0x0000
+}; //Size: 0x0044
+static_assert(sizeof(N00000165) == 0x44);
+
+class N00000185
+{
+public:
+    char pad_0000[4]; //0x0000
+}; //Size: 0x0004
+static_assert(sizeof(N00000185) == 0x4);
+
+class N000001E3
+{
+public:
+    char pad_0000[68]; //0x0000
+}; //Size: 0x0044
+static_assert(sizeof(N000001E3) == 0x44);
+
+class weapon
+{
+public:
+    char pad_0000[20]; //0x0000
+    class ammoPtr1* ammoPtr; //0x0014
+}; //Size: 0x0018
+static_assert(sizeof(weapon) == 0x18);
+
+class ammoPtr1
+{
+public:
+    int32_t ammo; //0x0000
+}; //Size: 0x0004
+static_assert(sizeof(ammoPtr1) == 0x4);
+
 DWORD WINAPI HackThread(HMODULE hModule)
 {
     //Create Console
@@ -54,7 +122,9 @@ DWORD WINAPI HackThread(HMODULE hModule)
         }
 
         //need to use uintptr_t for pointer arithmetic later
-        uintptr_t* localPlayerPtr = (uintptr_t*)(moduleBase + 0x10F4F4);
+        //uintptr_t* localPlayerPtr = (uintptr_t*)(moduleBase + 0x10F4F4);
+
+        playerClass* localPlayerPtr = *(playerClass**)(moduleBase + 0x10F4F4);
 
         //continuous writes / freeze
 
@@ -67,7 +137,10 @@ DWORD WINAPI HackThread(HMODULE hModule)
                 // add 0xF8 to get health address
                 //cast to an int pointer, this pointer now points to the health address
                 //derference it and assign the value 1337 to the health variable it points to
-                *(int*)(*localPlayerPtr + 0xF8) = 1337;
+                
+                //*(int*)(*localPlayerPtr + 0xF8) = 1337;
+                localPlayerPtr->health = 1337;
+
             }
 
             if (bAmmo)
@@ -75,12 +148,13 @@ DWORD WINAPI HackThread(HMODULE hModule)
                 //We aren't external now, we can now efficiently calculate all pointers dynamically
                 //before we only resolved pointers when needed for efficiency reasons
                 //we are executing internally, we can calculate everything when needed
-                uintptr_t ammoAddr = mem::FindDMAAddy(moduleBase + 0x10F4F4, { 0x374, 0x14, 0x0 });
+                /*uintptr_t ammoAddr = mem::FindDMAAddy(moduleBase + 0x10F4F4, { 0x374, 0x14, 0x0 });
                 int* ammo = (int*)ammoAddr;
-                *ammo = 1337;
+                *ammo = 1337;*/
 
                 //or just
-                *(int*)mem::FindDMAAddy(moduleBase + 0x10F4F4, { 0x374, 0x14, 0x0 }) = 1337;
+                //*(int*)mem::FindDMAAddy(moduleBase + 0x10F4F4, { 0x374, 0x14, 0x0 }) = 1337;
+                localPlayerPtr->currentWeapon->ammoPtr->ammo = 1337;
             }
 
         }
