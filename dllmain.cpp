@@ -13,14 +13,21 @@ DWORD WINAPI HackThread(HMODULE hModule)
     FILE* f;
     freopen_s(&f, "CONOUT$", "w", stdout);
 
-    std::cout << "OG for a fee, stay sippin' fam\n";
+    std::cout << "== AssaultCube Internal ==\n";
+    std::cout << "\nCredits: GH\n\n";
+    std::cout << "NUMPAD1 -- Health\n";
+    std::cout << "NUMPAD2 -- Ammo\n";
+    std::cout << "NUMPAD3 -- Recoil\n";
+    std::cout << "NUMPAD4 -- Grenades\n";
+    std::cout << "\nEND     -- EXIT\n\n";
+    //std::cout << "NUMPAD4 -- Exit\n\n";
 
     uintptr_t moduleBase = (uintptr_t)GetModuleHandle(L"ac_client.exe");
 
     //calling it with NULL also gives you the address of the .exe module
     moduleBase = (uintptr_t)GetModuleHandle(NULL);
 
-    bool bHealth = false, bAmmo = false, bRecoil = false;
+    bool bHealth = false, bAmmo = false, bRecoil = false, bArmor = false, bGrenades = false;
 
     while (true)
     {
@@ -54,9 +61,12 @@ DWORD WINAPI HackThread(HMODULE hModule)
             }
         }
 
-        //need to use uintptr_t for pointer arithmetic later
-        //uintptr_t* localPlayerPtr = (uintptr_t*)(moduleBase + 0x10F4F4);
+        if (GetAsyncKeyState(VK_NUMPAD4) & 1)
+        {
+            bGrenades = !bGrenades;
+        }
 
+        //need to use uintptr_t for pointer arithmetic later
         playerClass* localPlayerPtr = *(playerClass**)(moduleBase + 0x10F4F4);
 
         //continuous writes / freeze
@@ -88,6 +98,10 @@ DWORD WINAPI HackThread(HMODULE hModule)
                 //or just
                 //*(int*)mem::FindDMAAddy(moduleBase + 0x10F4F4, { 0x374, 0x14, 0x0 }) = 1337;
                 *localPlayerPtr->currentWeapon->ammoPtr = 1337;
+            }
+
+            if (bGrenades) {
+                localPlayerPtr->grenadeCount = 1;
             }
 
         }
